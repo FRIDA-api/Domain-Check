@@ -2,7 +2,7 @@ name: start
 on: [push]
 jobs:
     generate_Github_pages_of_the_yaml_files:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-24.04
         container: 
             image: jonasknebel/resolver_for_yaml_dependencies:latest     
         steps:
