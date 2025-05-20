@@ -21,13 +21,20 @@ jobs:
         path: destination-repo
 
     - name: Resolve yaml references
-      run: redocly bundle FRIDA_PensionInformation_OA3_en.yaml --output tmp/openapi.yaml
+      run: |
+        mkdir -p tmp
+        # Loop through all YAML files and bundle them
+        for file in *.yaml; do
+          redocly bundle "$file" --output "tmp/$(basename "$file")"
+        done
 
     - name: Copy files
       run: |
-        mkdir -p destination-repo
-
-        cp -f tmp/openapi.yaml destination-repo/marketplace/src/assets/api/pension-api.yaml
+        mkdir -p destination-repo/marketplace/src/assets/api
+        # Loop over bundled YAML files and copy each to destination repo
+        for file in tmp/*.yaml; do
+          cp -f "$file" destination-repo/marketplace/src/assets/api/$(basename "$file")
+        done
 
         cd destination-repo
 
@@ -36,9 +43,8 @@ jobs:
 
         git add .
 
-        if git status | grep -q "Changes to be committed"
-        then
-          git commit -m "Copy api specification from pension-api" --allow-empty
+        if git status | grep -q "Changes to be committed"; then
+          git commit -m "Copy api specifications" --allow-empty
           git push origin main
         else
           echo "No changes detected"
